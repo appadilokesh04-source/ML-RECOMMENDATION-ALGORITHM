@@ -1,0 +1,51 @@
+
+
+services:
+
+  # ── FastAPI App ──
+  app:
+    build: .
+    container_name: movie-recommender-app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:root@mysql:3306/moviedb
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./saved_models:/app/saved_models  # persist trained models
+      - ./data:/app/data                  # persist dataset
+    restart: always
+
+  # ── MySQL ──
+  mysql:
+    image: mysql:8.0
+    container_name: movie-recommender-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: moviedb
+    ports:
+      - "3307:3306"   # 3307 on host to avoid conflict with local MySQL
+    volumes:
+      - mysql_data:/var/lib/mysql   # persist DB data
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  # ── Redis ──
+  redis:
+    image: redis:alpine
+    container_name: movie-recommender-redis
+    ports:
+      - "6380:6379"   # 6380 on host to avoid conflict with local Redis
+    restart: always
+
+volumes:
+  mysql_data:

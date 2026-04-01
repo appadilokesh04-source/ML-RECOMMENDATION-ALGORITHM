@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+scikit-learn
+pandas
+numpy<2
+scikit-surprise
+sqlalchemy
+pymysql
+redis
+python-dotenv
+pydantic-settings
+joblib
+httpx
+pytest
