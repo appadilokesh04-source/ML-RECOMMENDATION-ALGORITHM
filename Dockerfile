@@ -12,16 +12,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# ✅ Fix — set PYTHONPATH so Python finds app.data module
 ENV PYTHONPATH=/app
 
-# Train models at build time
-RUN python -c "
-from app.ml.hybrid import HybridEngine
-engine = HybridEngine()
-engine.train()
-print('Models trained and saved!')
-"
+# ✅ Run training script instead of inline python -c
+RUN python train.py
 
 EXPOSE 8000
 
